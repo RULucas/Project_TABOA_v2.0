@@ -1,0 +1,19 @@
+tree("Root")
+	fallback
+		tree "Movement"
+		tree "Combat"
+tree("Movement")
+	fallback
+		while 
+			sequence
+				not isAttacking
+				not recoveringStamina
+			Move
+		while recoveringStamina
+			Stop
+tree("Combat")
+	fallback
+		while not recoveringStamina
+			Combat
+		while recoveringStamina
+			RecoverStamina

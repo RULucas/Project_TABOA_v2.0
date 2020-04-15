@@ -1,0 +1,21 @@
+tree("Root")
+	parallel
+		RecoverAttack
+		tree "Movement"
+		tree "Combat"
+tree("Movement")
+	fallback
+		while goToTarget
+			MoveTowards
+		while runAway
+			RunAway
+		while standStill
+			StandStill
+tree("Combat")
+	fallback
+		while doDudAttack
+			DudAttack
+		while doMeleeAttack
+			MeleeAttack
+		while doRangeAttack
+			RangeAttack
