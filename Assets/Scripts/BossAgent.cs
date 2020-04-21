@@ -5,28 +5,32 @@ using MLAgents;
 using MLAgents.Sensors;
 using MLAgents.SideChannels;
 using MLAgents.Policies;
-using System;
 using Panda;
 using System.IO;
 
 public class BossAgent : Agent
 {
-    //Transform target;
-    GameObject target;
-    public GameManager gameManager;
-    public ActionManager actionManager;
+    [SerializeField] GameObject target;
+    [SerializeField] private ActionManager actionManager;
     [SerializeField] private CharacterStats targetStats;
     [SerializeField] private CharacterStats myStats;
-    public Boss boss;
+    [SerializeField] private Boss boss;
+    public GameObject fightArena;
+    [SerializeField] private GameManager gameManager;
     public float currentThinkingTime;
     public float distance;
     Dictionary<int, BaseAttack> baseAttacks;
     Dictionary<int, BaseMovement> baseMovements;
+    float maxRangeForAttacking;
+
+    float timer;
+    float second;
 
     #region /*****  VARIABLES FOR CREATING THE FIGHT LOG  *****/
 
     private int fightNumber;
     private string path;
+    private string arenaName;
 
     #endregion
 
@@ -39,54 +43,49 @@ public class BossAgent : Agent
     int moveToDo;
 
     #endregion
+
     void Start()
     {
-        currentThinkingTime = 0.1f;
-        boss = GetComponent<Boss>();
-        gameManager = GameManager.instance;
-        baseAttacks = new Dictionary<int, BaseAttack>();
-        PopulateAttackDictionary(actionManager.availableAttacks);
-        baseMovements = new Dictionary<int, BaseMovement>();
-        PopulateMovesDictionary(actionManager.availableMovementes);
-        target = gameManager.player;
-        myStats = GetComponent<CharacterStats>();
-        targetStats = target.GetComponent<CharacterStats>();
-
-        availableAttacks = actionManager.GetAvailableAttacks();
-        availableMovementes = actionManager.GetAvailableMovementes();
+        WakeUp();
     }
 
     void Update()
     {
         distance = Vector3.Distance(target.transform.position, transform.position);
-        currentThinkingTime -= Time.deltaTime;
+        timer += Time.deltaTime;
+        second = timer % 60;
     }
 
     public override void CollectObservations(VectorSensor sensor)
     {
-        sensor.AddObservation(target.transform.position);           // 3
-        sensor.AddObservation(transform.position);                  // 6
-        sensor.AddObservation(myStats.currentHealth);               // 7
-        sensor.AddObservation(myStats.damageDealt);                 // 8
-        sensor.AddObservation(myStats.damageReceived);              // 9
-        sensor.AddObservation(targetStats.currentHealth);           // 10
-        sensor.AddObservation(distance);                            // 11
-        sensor.AddObservation(baseAttacks[0].attackRange);          // 12
-        sensor.AddObservation(baseAttacks[0].attackDamage);         // 13
-        sensor.AddObservation(baseAttacks[0].attackReady ? 1 : 0);  // 14
-        sensor.AddObservation(baseAttacks[1].attackRange);          // 15
-        sensor.AddObservation(baseAttacks[1].attackDamage);         // 16
-        sensor.AddObservation(baseAttacks[1].attackReady ? 1 : 0);  // 17
-        sensor.AddObservation(baseAttacks[2].attackRange);          // 18
-        sensor.AddObservation(baseAttacks[2].attackDamage);         // 19
-        sensor.AddObservation(baseAttacks[2].attackReady ? 1 : 0);  // 20
+        //sensor.AddObservation(target.transform.position);           // 3
+        //sensor.AddObservation(transform.position);                  // 6
+        //sensor.AddObservation(myStats.currentHealth);               // 7
+        /*sensor.AddObservation(myStats.damageDealt);                 // 8
+        sensor.AddObservation(myStats.damageReceived);         */     // 9
+        //sensor.AddObservation(targetStats.currentHealth);           // 10
+        sensor.AddObservation(distance);                            // 1
+        sensor.AddObservation(currentThinkingTime);                 // 2
+        sensor.AddObservation(second);                              // 3
+        //sensor.AddObservation(baseAttacks[0].attackRange);          // 12
+        //sensor.AddObservation(baseAttacks[0].timeForNextAttack);
+        //sensor.AddObservation(baseAttacks[0].attackDamage);         // 13
+        //sensor.AddObservation(baseAttacks[0].attackReady ? 1 : 0);  // 14
+        //sensor.AddObservation(baseAttacks[1].attackRange);          // 15
+        //sensor.AddObservation(baseAttacks[1].timeForNextAttack);
+        //sensor.AddObservation(baseAttacks[1].attackDamage);         // 16
+        //sensor.AddObservation(baseAttacks[1].attackReady ? 1 : 0);  // 17
+        //sensor.AddObservation(baseAttacks[2].attackRange);          // 18
+        //sensor.AddObservation(baseAttacks[2].attackDamage);         // 19
+        //sensor.AddObservation(baseAttacks[2].attackReady ? 1 : 0);  // 20
+        //sensor.AddObservation(baseAttacks[2].timeForNextAttack);
     }
 
     public override void OnEpisodeBegin()
     {
-        transform.localPosition = new Vector3(2.7f, transform.localPosition.y, -27f);
+        transform.localPosition = new Vector3(Random.Range(-42, 42), transform.localPosition.y, Random.Range(-44, -2));
         transform.localRotation = Quaternion.Euler(0, 0, 0);
-        target.transform.localPosition = new Vector3(2.7f, target.transform.localPosition.y, 27f);
+        target.transform.localPosition = new Vector3(Random.Range(-42, 42), target.transform.localPosition.y, Random.Range(2, 44));
         target.transform.localRotation = Quaternion.Euler(0, -180, 0);
         myStats.ResetStats();
         targetStats.ResetStats();
@@ -95,49 +94,70 @@ public class BossAgent : Agent
 
     public override void OnActionReceived(float[] vectorAction)
     {
+
+        #region /*****  REWARD SYSTEM FOR STAYING AT RANGE OF DEALING DAMAGE  *****/
+
         var movement = (int)vectorAction[0];
         boss.DoIMove(baseMovements[movement]);
+
+        if (distance > maxRangeForAttacking)
+            AddReward(-1 / 7000);
+        else
+            AddReward(1 / 7000);
+
+        #endregion
+
+        #region /*****  REWARD SYSTEM FOR ATTACKING ON INTERVALS  *****/
+
         var attack = (int)vectorAction[1];
-        if (currentThinkingTime <= 0)
+
+        if (/*(*/second < currentThinkingTime /*|| second >= 4)*/ && baseAttacks[attack].attackType != BaseAttack.AttackType.dud)
+            AddReward(-1 / 100f);
+
+        if ((second >= currentThinkingTime || second < currentThinkingTime + 2f) && baseAttacks[attack].attackType != BaseAttack.AttackType.dud)
         {
-            /* if (currentThinkingTime <= 0 && distance <= baseAttacks[attack].attackRange && baseAttacks[attack].attackReady)
-                 boss.DoIAttack(baseAttacks[attack]);
-             currentThinkingTime = baseAttacks[attack].timeForNextAttack;*/
-            /* if (!baseAttacks[attack].attackReady)
-                 AddReward(-1 / 2000f);
-             if (baseAttacks[attack].attackRange <= distance)
-                 AddReward(-1 / 3000f);*/
-            if (distance <= baseAttacks[attack].attackRange && baseAttacks[attack].attackReady)
-            {
-                boss.DoIAttack(baseAttacks[attack]);
-                /* if (baseAttacks[attack].attackType != BaseAttack.AttackType.dud)
-                     AddReward(1 / 100f);*/
-            }
+            boss.DoIAttack3(baseAttacks[attack]);
+            gameManager.SaveInfo(myStats, targetStats, baseAttacks[attack], second);
+            AddReward(1 / 2000f);
             currentThinkingTime = baseAttacks[attack].timeForNextAttack;
+            timer = 0;
+            second = 0;
+        }
+        boss.DoIAttack(baseAttacks[attack]);
+
+        if (second >= currentThinkingTime + 2f)
+        {
+            AddReward(-1 / 100f);
+            timer = 0;
+            second = 0;
         }
 
-        /*if (myStats.damageDealt > myStats.damageReceived)
-            AddReward(1f / 2000f);*/
+        #endregion
+
+        #region /*****  REWARD SYSTEM FOR ENCOURAGING FIGHTING  *****/
+
         if (targetStats.currentHealth <= 0)
         {
-            fightNumber = PlayerPrefs.GetInt("FightNumberTABOAv2", 0);
-            path = "D:/Documentos/Unity/Fight Logs TABOA v2/FighInfo" + fightNumber.ToString() + ".txt";
+            fightNumber = PlayerPrefs.GetInt("FightNumberTABFAv2" + arenaName + "", 0);
+            path = "D:/Documentos/Unity/Fight Logs TABFA v2/FighInfo" + arenaName + "" + fightNumber.ToString() + ".txt";
             File.AppendAllText(path, targetStats.characterName);
             fightNumber += 1;
-            PlayerPrefs.SetInt("FightNumberTABOAv2", fightNumber);
-            SetReward(1f);
+            PlayerPrefs.SetInt("FightNumberTABFAv2" + arenaName + "", fightNumber);
+            AddReward(1 / 3000f);
             EndEpisode();
         }
         if (myStats.currentHealth <= 0)
         {
-            fightNumber = PlayerPrefs.GetInt("FightNumberTABOAv2", 0);
-            path = "D:/Documentos/Unity/Fight Logs TABOA v2/FighInfo" + fightNumber.ToString() + ".txt";
+            fightNumber = PlayerPrefs.GetInt("FightNumberTABFAv2" + arenaName + "", 0);
+            path = "D:/Documentos/Unity/Fight Logs TABFA v2/FighInfo" + arenaName + "" + fightNumber.ToString() + ".txt";
             File.AppendAllText(path, myStats.characterName);
             fightNumber += 1;
-            PlayerPrefs.SetInt("FightNumberTABOAv2", fightNumber);
-            SetReward(-1f);
+            PlayerPrefs.SetInt("FightNumberTABFAv2" + arenaName + "", fightNumber);
+            AddReward(-1 / 1000f);
             EndEpisode();
         }
+
+        #endregion
     }
 
     public override float[] Heuristic()
@@ -150,7 +170,34 @@ public class BossAgent : Agent
         return action;
     }
 
-    private void PopulateMovesDictionary(BaseMovement[] availableMovementes)
+    #region /*****  WAKING UP THE BRAIN AND SETTING THINGS  *****/
+
+    void WakeUp()
+    {
+        currentThinkingTime = 0.1f;
+        maxRangeForAttacking = 0;
+        gameManager = fightArena.GetComponent<GameManager>();
+        boss = GetComponent<Boss>();
+        myStats = GetComponent<CharacterStats>();
+        actionManager = gameManager.bossActionManager;
+
+        baseAttacks = new Dictionary<int, BaseAttack>();
+        PopulateAttackDictionary(actionManager.availableAttacks);
+        availableAttacks = actionManager.GetAvailableAttacks();
+
+        baseMovements = new Dictionary<int, BaseMovement>();
+        PopulateMovesDictionary(actionManager.availableMovementes);
+        availableMovementes = actionManager.GetAvailableMovementes();
+
+        GetMaxRange();
+
+        target = gameManager.player;
+        targetStats = target.GetComponent<CharacterStats>();
+
+        arenaName = boss.fightArena.name.Replace(" ", "");
+    }
+
+    void PopulateMovesDictionary(BaseMovement[] availableMovementes)
     {
         foreach (BaseMovement m in availableMovementes)
             baseMovements.Add(m.moveID, m);
@@ -161,6 +208,17 @@ public class BossAgent : Agent
         foreach (BaseAttack a in availableAttacks)
             baseAttacks.Add(a.attackID, a);
     }
+
+    void GetMaxRange()
+    {
+        foreach (BaseAttack a in availableAttacks)
+            if (a.attackRange >= maxRangeForAttacking)
+                maxRangeForAttacking = a.attackRange;
+    }
+
+    #endregion
+
+    #region /***** ACTIONS FOR THE HEURISTICS *****/
 
     public int CalculateAttack(CharacterStats myStats, CharacterStats targetStats, float distanceToTarget)
     {
@@ -212,4 +270,5 @@ public class BossAgent : Agent
         return selectedMovement.moveID;
     }
 
+    #endregion
 }

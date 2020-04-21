@@ -8,7 +8,7 @@ public class Boss : MonoBehaviour
 {
     #region /****** VARIABLES TO MANAGE THE ACTION SELECTION *******/
 
-    [SerializeField] private ActionManager actionManager;
+    public ActionManager actionManager;
     [SerializeField] private BaseMovement movementToDo;
     [SerializeField] private BaseAttack attackToDo;
 
@@ -23,8 +23,8 @@ public class Boss : MonoBehaviour
 
     #region    /******* PLAYER VARIABLES *************************/
 
-    Transform target;
-    [SerializeField] private CharacterStats targetStats;
+    public Transform target;
+    public CharacterStats targetStats;
 
     #endregion    /***************************************************/
 
@@ -32,12 +32,13 @@ public class Boss : MonoBehaviour
 
     public float currentThinkingTime;
     NavMeshAgent myAgent;
-    [SerializeField] private CharacterStats myStats;
-    private GameManager gameManager;
+    public CharacterStats myStats;
+    public GameManager gameManager;
     private float distance;
     [SerializeField]
     private string rotateTo;
     private float lastTime;
+    public GameObject fightArena;
 
     #endregion    /**************************************************/
 
@@ -62,7 +63,7 @@ public class Boss : MonoBehaviour
     void Start()
     {
         myAgent = GetComponent<NavMeshAgent>();
-        gameManager = GameManager.instance;
+        gameManager = fightArena.GetComponent<GameManager>();
         target = gameManager.player.transform;
         actionManager = gameManager.bossActionManager;
         myStats = GetComponent<CharacterStats>();
@@ -73,7 +74,7 @@ public class Boss : MonoBehaviour
     #region    /******************************* PANDA FUCTIONS *****************************************/
 
     #region    /******************* DECISION FUNCTIONS *************************/
-    
+
     public void DoIMove(BaseMovement movementToDo)
     {
         float distanceToTarget = Vector3.Distance(target.position, transform.position);
@@ -123,17 +124,18 @@ public class Boss : MonoBehaviour
                     break;
             }
     }*/
-    
+
     public void DoIAttack(BaseAttack attackGiven)
     {
         attackToDo = attackGiven;
         float distanceToTarget = Vector3.Distance(target.position, transform.position);
-        if (attackToDo != null)
+        //if (attackToDo != null)
+        if (attackGiven.attackReady && distanceToTarget <= attackGiven.attackRange)
         {
-            switch (attackToDo.attackType)
+            switch (attackGiven.attackType)
             {
                 case BaseAttack.AttackType.dud:
-                    doDudAttack=true;
+                    doDudAttack = true;
                     break;
                 case BaseAttack.AttackType.melee:
                     lastTime = Time.time + 1f;
@@ -152,7 +154,46 @@ public class Boss : MonoBehaviour
             }
         }
     }
-   
+
+    public void DoIAttack3(BaseAttack attackGiven)
+    {
+        attackToDo= attackGiven;
+        float distanceToTarget = Vector3.Distance(target.position, transform.position);
+        //if (attackToDo != null)
+        if (/*attackGiven.attackReady &&*/ distanceToTarget <= attackGiven.attackRange)
+        {
+            switch (attackGiven.attackType)
+            {
+                case BaseAttack.AttackType.dud:
+                    myStats.damageDealt = attackGiven.attackDamage;
+                    doDudAttack = false;
+                    break;
+                case BaseAttack.AttackType.melee:
+                    lastTime = Time.time + 1f;
+                    goToTarget = false;
+                    runAway = false;
+                    doMeleeAttack = true;
+                    myAgent.SetDestination(transform.position);
+                    myAgent.isStopped = myAgent.isStopped == true ? true : true;
+                    //gameManager.SaveInfo(myStats, targetStats, attackGiven, distanceToTarget);
+                    gameManager.TakeDamage(targetStats, attackGiven.attackDamage);
+                    NewResetVariables();
+                    break;
+                case BaseAttack.AttackType.range:
+                    lastTime = Time.time + 1f;
+                    goToTarget = false;
+                    runAway = false;
+                    doRangeAttack = true;
+                    myAgent.SetDestination(transform.position);
+                    myAgent.isStopped = myAgent.isStopped == true ? true : true;
+                    //gameManager.SaveInfo(myStats, targetStats, attackGiven, distanceToTarget);
+                    gameManager.TakeDamage(targetStats, attackGiven.attackDamage);
+                    NewResetVariables();
+                    break;
+            }
+        }
+    }
+
     /* [Task]
      public void DoIAttack2()
      {
@@ -236,7 +277,7 @@ public class Boss : MonoBehaviour
             Vector3 direction = (transform.position - target.position).normalized;
             myAgent.SetDestination(transform.position + direction);
         }
-       // Task.current.Fail();
+        // Task.current.Fail();
     }
     [Task]
     void StandStill()
@@ -246,7 +287,7 @@ public class Boss : MonoBehaviour
         Quaternion lookRotation = Quaternion.LookRotation(new Vector3(lookDirection.x, 0f, lookDirection.z));
         transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * .5f);
         myAgent.SetDestination(transform.position);
-       // Task.current.Fail();
+        // Task.current.Fail();
     }
 
     #endregion    /*****************************************************/
@@ -254,7 +295,8 @@ public class Boss : MonoBehaviour
 
     #region    /**************** ATTACK FUNCTIONS ***********************/
 
-    [Task] void DudAttack()
+    [Task]
+    void DudAttack()
     {
         myStats.damageDealt = attackToDo.attackDamage;
         doDudAttack = false;

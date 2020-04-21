@@ -8,20 +8,7 @@ using System.IO;
 public class GameManager : MonoBehaviour
 {
 
-    #region Singleton 
-
-    public static GameManager instance;
-
-    void Awake()
-    {
-        instance = this;
-        path = "D:/Documentos/Unity/Fight Logs TABOA v2/FighInfo0.txt";
-        //Create file if it doesn't exist
-        if (!File.Exists(path))
-            PlayerPrefs.SetInt("FightNumberTABOAv2", 0);
-    }
-
-    #endregion
+    public GameObject fightArena;
 
     public GameObject player;
     public ActionManager playerActionManager;
@@ -36,14 +23,27 @@ public class GameManager : MonoBehaviour
 
     private int fightNumber;
     private string path;
+    private string arenaName;
 
     float timeToDecress = 0;
-    float value=0.5f;
+    float value=5f;
+
+    void Awake()
+    {
+        arenaName = fightArena.name.Replace(" ","");
+        path = "D:/Documentos/Unity/Fight Logs TABFA v2/FighInfo"+arenaName+"0.txt";
+        //Create file if it doesn't exist
+        if (!File.Exists(path))
+            PlayerPrefs.SetInt("FightNumberTABFAv2"+arenaName+"", 0);
+    }
 
     void Start()
     {
         bossStats = boss.GetComponent<CharacterStats>();
         bossActionManager.ResetAttack();
+        playerHealth = player.GetComponent<CharacterStats>().health;
+        playerStamina= player.GetComponent<CharacterStats>().stamina;
+        bossHealth= boss.GetComponent<CharacterStats>().health;
     }
 
     void Update()
@@ -83,9 +83,10 @@ public class GameManager : MonoBehaviour
         //Content of the file 
         //  BOSS HEALT , ATTACK ID (DONE) , ATTACK DAMAGE , DISTANCE TO TARGET , PLAYER HEALTH
         string content = bossStats.currentHealth.ToString() + ";" + attackChosen.attackID.ToString() + ";" + attackChosen.attackDamage.ToString() + ";" + distance.ToString() + ";" + playerStats.currentHealth.ToString() + "\n";
-        fightNumber = PlayerPrefs.GetInt("FightNumberTABOAv2", 0);
-        path = "D:/Documentos/Unity/Fight Logs TABOA v2/FighInfo" + fightNumber.ToString() + ".txt";
+        fightNumber = PlayerPrefs.GetInt("FightNumberTABFAv2" + arenaName + "", 0);
+        path = "D:/Documentos/Unity/Fight Logs TABFA v2/FighInfo" + arenaName + "" + fightNumber.ToString() + ".txt";
        // if (!File.Exists(path))
             File.AppendAllText(path, content);
     }
+    
 }

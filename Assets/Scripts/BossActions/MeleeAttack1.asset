@@ -18,7 +18,7 @@ MonoBehaviour:
   attackDamage: 3
   attackRange: 1.5
   attackStaminaCost: 0
-  timeForNextAttack: 0.5
+  timeForNextAttack: 1.5
   attackCooldown: 2
   recoveryRate: 0
   attackReady: 1

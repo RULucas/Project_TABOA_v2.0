@@ -18,7 +18,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: bcae44d410a967e418bbb74c8b8c2bc4, type: 2}
   selectedAttack: {fileID: 0}
   availableMovementes:
-  - {fileID: 11400000, guid: af17171569edc6e4797f74b153babe40, type: 2}
   - {fileID: 11400000, guid: d99c800c45457e243a8ba9ec09963040, type: 2}
+  - {fileID: 11400000, guid: af17171569edc6e4797f74b153babe40, type: 2}
   - {fileID: 11400000, guid: 71391824841447f449868f7d103f700e, type: 2}
   selectedMovement: {fileID: 11400000, guid: d99c800c45457e243a8ba9ec09963040, type: 2}

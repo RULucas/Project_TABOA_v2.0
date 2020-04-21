@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7273856e05a9e5e468113f042179ee54, type: 3}
+  m_Name: PlayerAction2
+  m_EditorClassIdentifier: 
+  availableAttacks:
+  - {fileID: 11400000, guid: 0e89c871c0f41d24c96bf687ad3c0cad, type: 2}
+  - {fileID: 11400000, guid: a4a14a9b108da4e4ca65b3777f153f76, type: 2}
+  - {fileID: 11400000, guid: b78b1100d5e4aee4ebc6869873221df8, type: 2}
+  selectedAttack: {fileID: 0}
+  availableMovementes: []
+  selectedMovement: {fileID: 0}

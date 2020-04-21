@@ -9,6 +9,7 @@ public class Player : MonoBehaviour
     public CharacterController controller;
     [SerializeField]
     private GameManager gameManager;
+    public GameObject fightArena;
 
     public Transform meleeAttackRange;
     public float meleeAttackRadius;
@@ -58,12 +59,12 @@ public class Player : MonoBehaviour
     }
     void Start()
     {
-        gameManager = GameManager.instance;
+        gameManager = fightArena.GetComponent<GameManager>();
         target = gameManager.boss.transform;
         myAgent = GetComponent<NavMeshAgent>();
         animator = GetComponentInChildren<Animator>();
-        overrideController = new AnimatorOverrideController(animator.runtimeAnimatorController);
-        animator.runtimeAnimatorController = overrideController;
+        //overrideController = new AnimatorOverrideController(animator.runtimeAnimatorController);
+        //animator.runtimeAnimatorController = overrideController;
         myStats = GetComponent<CharacterStats>();
         targetStats = gameManager.boss.GetComponent<CharacterStats>();
         actionManager = gameManager.playerActionManager;
@@ -135,8 +136,8 @@ public class Player : MonoBehaviour
         Quaternion lookRotation = Quaternion.LookRotation(new Vector3(direction.x, 0f, direction.z));
         transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * .5f);
         myAgent.SetDestination(target.position);
-        speedPercent = myAgent.velocity.magnitude / myAgent.speed;
-        animator.SetFloat("speedPercent", speedPercent, locomotionAnimationSmoothTime, Time.deltaTime);
+        //speedPercent = myAgent.velocity.magnitude / myAgent.speed;
+        //animator.SetFloat("speedPercent", speedPercent, locomotionAnimationSmoothTime, Time.deltaTime);
         /*if (distance <= rangeAttackRadius)
             inRangeAttack = true;
         else
@@ -145,7 +146,7 @@ public class Player : MonoBehaviour
         if (distance <= 1.5f)
         {
             inMeleeAttack = true;
-            animator.SetFloat("speedPercent", 0);
+            //animator.SetFloat("speedPercent", 0);
             myAgent.SetDestination(transform.position);
         }
         else
@@ -158,8 +159,8 @@ public class Player : MonoBehaviour
     void Stop()
     {
         myAgent.SetDestination(transform.position);
-        speedPercent = myAgent.velocity.magnitude / myAgent.speed;
-        animator.SetFloat("speedPercent", 0);
+        //speedPercent = myAgent.velocity.magnitude / myAgent.speed;
+        //animator.SetFloat("speedPercent", 0);
         Task.current.Fail();
     }
     [Task]
@@ -177,8 +178,8 @@ public class Player : MonoBehaviour
         attack=actionManager.GetPlayerAttack(myStats);
         if (attack != null && recoveringStamina!=true)
         {
-            animator.SetTrigger("attack");
-            overrideController["Armature|Punch"] = defaultAttackAnimSet[0];
+            //animator.SetTrigger("attack");
+            //overrideController["Armature|Punch"] = defaultAttackAnimSet[0];
             myStats.DecressStamina(attack.attackStaminaCost);
             gameManager.playerStamina.value -= attack.attackStaminaCost;
             isAttacking = false;
