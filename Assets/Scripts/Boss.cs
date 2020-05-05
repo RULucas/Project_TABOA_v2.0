@@ -77,26 +77,26 @@ public class Boss : MonoBehaviour
 
     public void DoIMove(BaseMovement movementToDo)
     {
-        float distanceToTarget = Vector3.Distance(target.position, transform.position);
-        if (movementToDo != null)
-            switch (movementToDo.movementType)
-            {
-                case BaseMovement.MovementType.goToTarget:
-                    goToTarget = true;
-                    runAway = false;
-                    standStill = false;
-                    break;
-                case BaseMovement.MovementType.runAway:
-                    goToTarget = false;
-                    runAway = true;
-                    standStill = false;
-                    break;
-                case BaseMovement.MovementType.standStill:
-                    goToTarget = false;
-                    runAway = false;
-                    standStill = true;
-                    break;
-            }
+        /* float distanceToTarget = Vector3.Distance(target.position, transform.position);
+         if (movementToDo != null)
+             switch (movementToDo.movementType)
+             {
+                 case BaseMovement.MovementType.goToTarget:
+                     goToTarget = true;
+                     runAway = false;
+                     standStill = false;
+                     break;
+                 case BaseMovement.MovementType.runAway:
+                     goToTarget = false;
+                     runAway = true;
+                     standStill = false;
+                     break;
+                 case BaseMovement.MovementType.standStill:
+                     goToTarget = false;
+                     runAway = false;
+                     standStill = true;
+                     break;
+             }*/
     }
 
     /*[Task]
@@ -125,39 +125,11 @@ public class Boss : MonoBehaviour
             }
     }*/
 
+    private BaseAttack playerAttack;
+
     public void DoIAttack(BaseAttack attackGiven)
     {
         attackToDo = attackGiven;
-        float distanceToTarget = Vector3.Distance(target.position, transform.position);
-        //if (attackToDo != null)
-        if (attackGiven.attackReady && distanceToTarget <= attackGiven.attackRange)
-        {
-            switch (attackGiven.attackType)
-            {
-                case BaseAttack.AttackType.dud:
-                    doDudAttack = true;
-                    break;
-                case BaseAttack.AttackType.melee:
-                    lastTime = Time.time + 1f;
-                    goToTarget = false;
-                    runAway = false;
-                    doMeleeAttack = true;
-                    distance = distanceToTarget;
-                    break;
-                case BaseAttack.AttackType.range:
-                    lastTime = Time.time + 1f;
-                    goToTarget = false;
-                    runAway = false;
-                    doRangeAttack = true;
-                    distance = distanceToTarget;
-                    break;
-            }
-        }
-    }
-
-    public void DoIAttack3(BaseAttack attackGiven)
-    {
-        attackToDo= attackGiven;
         float distanceToTarget = Vector3.Distance(target.position, transform.position);
         //if (attackToDo != null)
         if (/*attackGiven.attackReady &&*/ distanceToTarget <= attackGiven.attackRange)
@@ -175,7 +147,7 @@ public class Boss : MonoBehaviour
                     doMeleeAttack = true;
                     myAgent.SetDestination(transform.position);
                     myAgent.isStopped = myAgent.isStopped == true ? true : true;
-                    //gameManager.SaveInfo(myStats, targetStats, attackGiven, distanceToTarget);
+                    gameManager.SaveInfo(myStats, targetStats, attackGiven, distanceToTarget);
                     gameManager.TakeDamage(targetStats, attackGiven.attackDamage);
                     NewResetVariables();
                     break;
@@ -186,7 +158,7 @@ public class Boss : MonoBehaviour
                     doRangeAttack = true;
                     myAgent.SetDestination(transform.position);
                     myAgent.isStopped = myAgent.isStopped == true ? true : true;
-                    //gameManager.SaveInfo(myStats, targetStats, attackGiven, distanceToTarget);
+                    gameManager.SaveInfo(myStats, targetStats, attackGiven, distanceToTarget);
                     gameManager.TakeDamage(targetStats, attackGiven.attackDamage);
                     NewResetVariables();
                     break;
@@ -308,7 +280,7 @@ public class Boss : MonoBehaviour
     {
         myAgent.SetDestination(transform.position);
         myAgent.isStopped = myAgent.isStopped == true ? true : true;
-        gameManager.SaveInfo(myStats, targetStats, attackToDo, distance);
+        //gameManager.SaveInfo(myStats, targetStats, attackToDo, distance);
         gameManager.TakeDamage(targetStats, attackToDo.attackDamage);
         NewResetVariables();
     }
@@ -318,7 +290,7 @@ public class Boss : MonoBehaviour
     {
         myAgent.SetDestination(transform.position);
         myAgent.isStopped = myAgent.isStopped == true ? true : true;
-        gameManager.SaveInfo(myStats, targetStats, attackToDo, distance);
+        //gameManager.SaveInfo(myStats, targetStats, attackToDo, distance);
         gameManager.TakeDamage(targetStats, attackToDo.attackDamage);
         NewResetVariables();
     }

@@ -49,7 +49,7 @@ public class Player : MonoBehaviour
     [SerializeField] private CharacterStats targetStats;
     [SerializeField] private ActionManager actionManager;
     [Task] [SerializeField] private BaseAttack attack;
-    [Task][SerializeField] private bool recoveringStamina;
+    [Task] [SerializeField] private bool recoveringStamina;
 
     void Awake()
     {
@@ -74,25 +74,7 @@ public class Player : MonoBehaviour
         Gizmos.color = Color.yellow;
         Gizmos.DrawWireSphere(meleeAttackRange.position, meleeAttackRadius);
     }
-    public void TakeDamage(int porcentageDamage)
-    {
-        porcentageDamage = Mathf.Clamp(porcentageDamage, 0, int.MaxValue);
-        damage = (porcentageDamage * maxHealth) / 100;
-        currentHealth -= damage;
-        Debug.Log(transform.name + " takes " + damage + " damage.");
 
-        if (currentHealth <= 0)
-        {
-            Die();
-        }
-    }
-
-    public virtual void Die()
-    {
-        //Die in some way
-        //This method is meant to be overwritten
-        Debug.Log(transform.name + " Died.");
-    }
 
     // Update is called once per frame
     void Update()
@@ -114,11 +96,11 @@ public class Player : MonoBehaviour
         }
 
         if (Input.GetKeyDown(KeyCode.X))
-           // isAttacking = true; //Attack();
+            // isAttacking = true; //Attack();
 
-        /*** TAKE CONTROLLED OVER CHARACTER ***/
-        if (Input.GetKeyDown(KeyCode.T))
-            controlledByPlayer = controlledByPlayer == false ? true : false;
+            /*** TAKE CONTROLLED OVER CHARACTER ***/
+            if (Input.GetKeyDown(KeyCode.T))
+                controlledByPlayer = controlledByPlayer == false ? true : false;
 
         //RecoverStamina();
     }
@@ -126,34 +108,8 @@ public class Player : MonoBehaviour
     [Task]
     void Move()
     {
-        if (myAgent.isStopped)
-        {
-            myAgent.isStopped = false;
-            controller.enabled = false;
-        }
-        float distance = Vector3.Distance(target.position, transform.position);
-        Vector3 direction = (target.position - transform.position).normalized;
-        Quaternion lookRotation = Quaternion.LookRotation(new Vector3(direction.x, 0f, direction.z));
-        transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * .5f);
-        myAgent.SetDestination(target.position);
-        //speedPercent = myAgent.velocity.magnitude / myAgent.speed;
-        //animator.SetFloat("speedPercent", speedPercent, locomotionAnimationSmoothTime, Time.deltaTime);
-        /*if (distance <= rangeAttackRadius)
-            inRangeAttack = true;
-        else
-            inRangeAttack = false;
-        */
-        if (distance <= 1.5f)
-        {
-            inMeleeAttack = true;
-            //animator.SetFloat("speedPercent", 0);
-            myAgent.SetDestination(transform.position);
-        }
-        else
-            inMeleeAttack = false;
-        Task.current.Succeed();
-        if (currentThinkingTime <= 0 && (inMeleeAttack /*|| inRangeAttack*/) && !isAttacking)
-            isAttacking = true;
+        isAttacking = true;
+        recoveringStamina = false;
     }
     [Task]
     void Stop()
@@ -175,24 +131,24 @@ public class Player : MonoBehaviour
     [Task]
     void Combat()
     {
-        attack=actionManager.GetPlayerAttack(myStats);
-        if (attack != null && recoveringStamina!=true)
-        {
-            //animator.SetTrigger("attack");
-            //overrideController["Armature|Punch"] = defaultAttackAnimSet[0];
-            myStats.DecressStamina(attack.attackStaminaCost);
-            gameManager.playerStamina.value -= attack.attackStaminaCost;
-            isAttacking = false;
-            currentThinkingTime = attack.attackCooldown;
-            gameManager.TakeDamage(targetStats, attack.attackDamage);
-            attack = null;
-            Task.current.Succeed();
-        }
+        attack = actionManager.GetPlayerAttack(myStats);
+        //if (attack != null && recoveringStamina!=true)
+        //{
+        //animator.SetTrigger("attack");
+        //overrideController["Armature|Punch"] = defaultAttackAnimSet[0];
+        myStats.DecressStamina(attack.attackStaminaCost);
+        gameManager.playerStamina.value -= attack.attackStaminaCost;
+        //isAttacking = false;
+        currentThinkingTime = attack.attackCooldown;
+        gameManager.TakeDamage(targetStats, attack.attackDamage);
+        attack = null;
+        Task.current.Succeed();
+        /*}
         else
         {
             recoveringStamina = true;
             Task.current.Fail();
-        }
+        }*/
     }
 
     [Task]
@@ -206,7 +162,7 @@ public class Player : MonoBehaviour
     {
         recoveringStamina = true;
         myStats.RecoverStamina();
-        
+
         if (myStats.currentStamina >= 100)
             recoveringStamina = false;
         isAttacking = false;

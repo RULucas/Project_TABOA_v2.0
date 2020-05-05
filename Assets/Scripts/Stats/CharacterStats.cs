@@ -7,8 +7,8 @@ using UnityEngine.UI;
 public class CharacterStats : MonoBehaviour
 {
     public string characterName;
-    public int maxHealth = 100;
-    public int currentHealth; //{ get; private set; }
+    public float maxHealth = 100;
+    public float currentHealth; //{ get; private set; }
     public float maxStamina = 100;
     public float currentStamina;// { get; private set; }
 

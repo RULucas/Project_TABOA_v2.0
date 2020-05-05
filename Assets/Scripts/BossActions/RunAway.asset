@@ -13,6 +13,6 @@ MonoBehaviour:
   m_Name: RunAway
   m_EditorClassIdentifier: 
   moveName: RunAway
-  moveID: 2
+  moveID: 1
   movementType: 1
-  movementScore: 0
+  movementScore: 1

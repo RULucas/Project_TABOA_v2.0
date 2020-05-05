@@ -56,12 +56,14 @@ public class GameManager : MonoBehaviour
             timeToDecress = 0;
         }*/
     }
-
+    
     public void TakeDamage(CharacterStats stats, int damage)
     {
-        stats.currentHealth -= damage;
+        //stats.currentHealth -= damage;
+        stats.currentHealth = stats.currentHealth - (stats.maxHealth * damage / 100);
         stats.damageReceived = damage;
-        stats.health.value -= damage;
+        //stats.health.value -= damage;
+        stats.health.value = stats.health.value - (stats.health.value * damage / 100);
 
         //Debug.Log("DAMAGE DEALT BY "+stats.characterName + " : " + damage);
         /*if (stats.currentHealth <= 0)

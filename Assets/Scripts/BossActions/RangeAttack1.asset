@@ -13,10 +13,10 @@ MonoBehaviour:
   m_Name: RangeAttack1
   m_EditorClassIdentifier: 
   attackName: LightRangeAttack
-  attackID: 2
+  attackID: 3
   attackType: 2
-  attackDamage: 2
-  attackRange: 5
+  attackDamage: 15
+  attackRange: 4
   attackStaminaCost: 0
   timeForNextAttack: 0.5
   attackCooldown: 2

@@ -15,8 +15,8 @@ MonoBehaviour:
   attackName: MediumAttack
   attackID: 2
   attackType: 0
-  attackDamage: 2
-  attackRange: 3
+  attackDamage: 14
+  attackRange: 2
   attackStaminaCost: 15
   timeForNextAttack: 0
   attackCooldown: 2

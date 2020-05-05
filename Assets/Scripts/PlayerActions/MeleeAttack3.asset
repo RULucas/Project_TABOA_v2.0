@@ -16,7 +16,7 @@ MonoBehaviour:
   attackID: 3
   attackType: 0
   attackDamage: 4
-  attackRange: 3
+  attackRange: 2
   attackStaminaCost: 60
   timeForNextAttack: 0
   attackCooldown: 3

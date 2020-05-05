@@ -13,6 +13,6 @@ MonoBehaviour:
   m_Name: MoveToTarget
   m_EditorClassIdentifier: 
   moveName: MoveToTarget
-  moveID: 1
+  moveID: 0
   movementType: 0
   movementScore: 0

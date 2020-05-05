@@ -66,11 +66,13 @@ public class ActionManager : ScriptableObject
         selectedAttack = null;
         foreach (BaseAttack a in availableAttacks)
         {
-            if (selectedAttack == null && stats.currentStamina >= a.attackStaminaCost)
+            /*if (selectedAttack == null && stats.currentStamina >= a.attackStaminaCost)
                 selectedAttack = a;
             if (selectedAttack != null)
                 if (stats.currentStamina >= a.attackStaminaCost && selectedAttack.attackDamage < a.attackDamage)
-                    selectedAttack = a;
+                    selectedAttack = a;*/
+            if (a.attackID == 0)
+                selectedAttack = a;
         }
         return selectedAttack;
     }

@@ -13,9 +13,9 @@ MonoBehaviour:
   m_Name: MeleeAttack1
   m_EditorClassIdentifier: 
   attackName: LightAttack
-  attackID: 1
+  attackID: 0
   attackType: 0
-  attackDamage: 1
+  attackDamage: 8
   attackRange: 3
   attackStaminaCost: 5
   timeForNextAttack: 0
